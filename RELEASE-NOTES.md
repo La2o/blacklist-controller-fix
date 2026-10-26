@@ -1,11 +1,13 @@
-## v1.1.0 — PlayStation Button Icons
+## v1.1.1 — PS5 USB + Bluetooth Supported
 
-Adds PlayStation button prompts to the working PS5 Bluetooth controller mod. The game uses its own PS3-style Cross, Circle, Square, Triangle, shoulder, trigger, stick and D-pad artwork. Start/Select retain their original PS3 symbols.
+USB is now tested in addition to Bluetooth. The user confirmed the DualSense works in Blacklist over USB through Ubisoft Connect (DX11), using the existing PlayStation-icon build.
 
-Download **Blacklist-DualSense-DropIn.zip**, close Blacklist, and extract it into the folder containing `Blacklist_Launcher.exe`. Launch through Ubisoft Connect. Existing v1.0.0 users can replace the same two DLLs while the game is closed.
+**Same DLLs as v1.1.0.** This release updates the package instructions and compatibility documentation. Existing v1.1.0 users do not need to replace their files.
 
-**User-confirmed in game:** PlayStation icons appear and inputs still work on the Bluetooth DualSense/DX11 setup. The prior native menus and analog movement remain working. **Automated verification:** prompt-path filters, x86 ABI/input checks, signature-checked hook installation, all 16 button replacement textures loaded, and unchanged original executable/configuration hashes.
+**Automated USB checks:** USB device present with Bluetooth disconnected; XInput ABI/mapping diagnostic passed; analog stick input; L2/R2 independently reached 0–255; game initialized the controller and PlayStation texture hooks. **In-game testing:** user confirmed USB works. Rumble API calls succeeded, but physical vibration was not separately confirmed.
 
-Textures are reused from the local game archive, with original-asset fallback. No game assets are distributed and no archive is modified. USB, DX9 gameplay, rumble, reconnect, additional controller models and exhaustive coverage of every game screen remain untested.
+**Install:** Close Blacklist, extract **Blacklist-DualSense-DropIn.zip** into the folder containing `Blacklist_Launcher.exe`, then launch through Ubisoft Connect. No installer, driver or configuration edit is required. Existing files from another mod should be backed up before replacement.
 
-Remove by closing the game and deleting `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`; restore any preexisting DLLs from your backup. To revert only the icon update, reinstall the v1.0.0 drop-in ZIP.
+**Remove:** Close the game and delete `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`, restoring preexisting files from your backup if applicable. Game executables, configuration and archives are not modified on disk.
+
+PS3-style PlayStation button prompts are included; Start/Select retain older symbols. DX9 gameplay, Edge/other controllers, physical rumble, reconnect and multiplayer remain unverified. See the repository compatibility notes for the precise testing scope.

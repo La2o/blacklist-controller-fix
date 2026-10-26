@@ -1,8 +1,8 @@
-# Splinter Cell Blacklist — PS5 Controller Bluetooth Supported
+# Splinter Cell Blacklist — PS5 USB/Bluetooth Controller Support
 
-**PS5 Controller Bluetooth Supported — now with PlayStation button icons.**
+**PS5 DualSense USB and Bluetooth supported, with PlayStation button icons.**
 
-Use a PlayStation 5 DualSense over Bluetooth with Blacklist's actual gamepad controls on Windows, including analog movement and controller menus, when launching through Ubisoft Connect.
+Use a PlayStation 5 DualSense over USB or Bluetooth with Blacklist's actual gamepad controls on Windows, including analog movement and controller menus, when launching through Ubisoft Connect.
 
 ## Easy install
 
@@ -36,7 +36,10 @@ The hook validates the lookup function signature for the same supported executab
 
 - **User-confirmed in game:** native controller menus and analog movement, Bluetooth DualSense, DX11, Ubisoft Connect launch. For v1.1.0, the user also confirmed PlayStation icons appear and inputs still work after checking menus/HUD.
 - **Automated checks:** x86 imports/exports and ABI, button and analog conversion, physical stick endpoints and Cross presses, loading inside the game, identity and ordering hooks, correct slot selection, unchanged original file hashes, prompt-path filtering/fallback eligibility, and all 16 replacement button textures loaded inside the game.
-- **Not tested:** USB, DX9 gameplay, DualSense Edge, physical full trigger travel, rumble, disconnect/reconnect, and multiplayer.
+- **USB verification:** Windows detected a USB DualSense with no Bluetooth connection present. The installed v1.1.0 DLL passed the diagnostic; both triggers independently reached 0–255 and both sticks produced analog input. The user then confirmed the USB controller works in game.
+- **Not tested:** DX9 gameplay, DualSense Edge, physical rumble sensation, disconnect/reconnect, and multiplayer. USB rumble API calls returned success, but this alone does not verify felt vibration.
+
+Version 1.1.1 packages the same DLLs as v1.1.0, with updated USB testing documentation. Existing v1.1.0 users do not need to replace their DLLs. See [COMPATIBILITY.md](COMPATIBILITY.md) for the verification scope.
 
 Rumble is implemented through SDL but has not been physically verified. There are no adaptive-trigger effects, gyro/touchpad mappings, headset audio bridge. PlayStation glyph replacement is included from v1.1.0. The optional XInputGetKeystroke API has no Sony event queue; Blacklist does not import it.
 
