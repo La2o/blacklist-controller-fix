@@ -4,13 +4,14 @@
 
 typedef void *(__attribute__((thiscall)) *Lookup)(void *,const char *);
 static Lookup original_lookup;
+extern BOOL controller_uses_playstation_prompts(void);
 const char *prompt_hook_status="Prompt texture hook not installed (diagnostic or unsupported game).";
 volatile LONG prompt_redirect_mask;
 volatile LONG prompt_missing_mask;
 static void *__attribute__((fastcall)) lookup(void *manager,void *unused,const char *path) {
     (void)unused;
     char replacement[256];int button=prompt_replacement(path,replacement);
-    if(button) {
+    if(button && controller_uses_playstation_prompts()) {
         void *entry=original_lookup(manager,replacement);
         if(entry) { InterlockedOr(&prompt_redirect_mask,1L<<(button-1));return entry; }
         InterlockedOr(&prompt_missing_mask,1L<<(button-1));
@@ -43,5 +44,5 @@ void install_prompt_hook(BYTE *base,DWORD image_size,DWORD timestamp) {
     jump=(DWORD)((BYTE*)&lookup-(target+5));memcpy(patch+1,&jump,4);memcpy(target,patch,10);
     DWORD unused;VirtualProtect(target,10,old,&unused);
     FlushInstructionCache(GetCurrentProcess(),target,10);FlushInstructionCache(GetCurrentProcess(),trampoline,15);
-    prompt_hook_status="PlayStation prompt texture hook installed; built-in PS3 button textures, original-file fallback.";
+    prompt_hook_status="Automatic controller prompt hook installed; DualSense uses PS3 artwork, native XInput keeps Xbox artwork.";
 }

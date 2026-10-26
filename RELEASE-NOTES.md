@@ -1,13 +1,13 @@
-## v1.1.1 — PS5 USB + Bluetooth Supported
+## v1.2.0 — Xbox USB + PS5 Bluetooth Verified
 
-USB is now tested in addition to Bluetooth. The user confirmed the DualSense works in Blacklist over USB through Ubisoft Connect (DX11), using the existing PlayStation-icon build.
+Fixes native Xbox controller detection when a keyboard's game-controller interface takes the first slot. Controller ordering now prioritizes native XInput pads as well as DualSense, preserves controller order and keeps the game's four-entry limit.
 
-**Same DLLs as v1.1.0.** This release updates the package instructions and compatibility documentation. Existing v1.1.0 users do not need to replace their files.
+**Automatic icons:** DualSense uses PlayStation artwork; native Xbox input keeps Xbox artwork. Restart Blacklist when switching controller families because button textures are cached.
 
-**Automated USB checks:** USB device present with Bluetooth disconnected; XInput ABI/mapping diagnostic passed; analog stick input; L2/R2 independently reached 0–255; game initialized the controller and PlayStation texture hooks. **In-game testing:** user confirmed USB works. Rumble API calls succeeded, but physical vibration was not separately confirmed.
+**User-confirmed on the same v1.2.0 DLL:** Xbox USB controls, analog movement and Xbox icons; PS5 Bluetooth controls, analog movement and PlayStation icons, in menus and gameplay. Automated checks verified native capability forwarding, GUID ordering/capacity, correct game slot selection, controller-specific prompt selection and all 16 PlayStation texture redirects.
 
-**Install:** Close Blacklist, extract **Blacklist-DualSense-DropIn.zip** into the folder containing `Blacklist_Launcher.exe`, then launch through Ubisoft Connect. No installer, driver or configuration edit is required. Existing files from another mod should be backed up before replacement.
+PS5 USB was tested on v1.1.x and has not been separately repeated on v1.2.0. Xbox Bluetooth/wireless adapter, physical rumble, hotplug, multiple simultaneous controllers, DX9 gameplay, Edge and multiplayer remain unverified.
 
-**Remove:** Close the game and delete `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`, restoring preexisting files from your backup if applicable. Game executables, configuration and archives are not modified on disk.
+**Install:** Close the game, extract **Blacklist-DualSense-DropIn.zip** into the folder containing `Blacklist_Launcher.exe`, then launch through Ubisoft Connect. Existing users replace the same two DLLs. Back up preexisting files from other mods first. The legacy ZIP filename is retained for existing download links.
 
-PS3-style PlayStation button prompts are included; Start/Select retain older symbols. DX9 gameplay, Edge/other controllers, physical rumble, reconnect and multiplayer remain unverified. See the repository compatibility notes for the precise testing scope.
+**Remove:** Close the game and delete `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`; restore other mod files from your backup if applicable. Reinstall v1.1.1 to roll back. No original game executable or archive is changed on disk, and no Ubisoft assets are distributed.

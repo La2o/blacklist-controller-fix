@@ -1,11 +1,24 @@
 #define WIN32_LEAN_AND_MEAN
 #include "mapping.h"
 #include "prompt_path.h"
+#include "device_order.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define CHECK(x) do { if(!(x)) { printf("FAIL line %d: %s\n",__LINE__,#x); return 1; } ++checks; } while(0)
 int main(int argc,char **argv) {
     int checks=0;
+    GUID instance_table[4]={{0}},product_table[4]={{0}},a={101,0,0,{0}},b={202,0,0,{0}};
+    DWORD count=1,priority=0;
+    instance_table[0].Data1=11;product_table[0].Data1=0x0b603434;
+    insert_priority_controller((BYTE*)instance_table,(BYTE*)product_table,&count,&priority,&a,&a);
+    CHECK(count==2 && priority==1 && product_table[0].Data1==101 && product_table[1].Data1==0x0b603434);
+    CHECK(instance_table[0].Data1==101 && instance_table[1].Data1==11);
+    insert_priority_controller((BYTE*)instance_table,(BYTE*)product_table,&count,&priority,&b,&b);
+    CHECK(count==3 && priority==2 && product_table[0].Data1==101 && product_table[1].Data1==202 && product_table[2].Data1==0x0b603434);
+    count=4;priority=0;for(int n=0;n<4;n++) {instance_table[n].Data1=n+1;product_table[n].Data1=n+11;}
+    insert_priority_controller((BYTE*)instance_table,(BYTE*)product_table,&count,&priority,&a,&b);
+    CHECK(count==4 && priority==1 && instance_table[0].Data1==101 && product_table[0].Data1==202);
+    CHECK(instance_table[1].Data1==1 && instance_table[3].Data1==3 && product_table[3].Data1==13);
     char prompt[256];
     CHECK(prompt_replacement(NULL,prompt)==0);
     CHECK(prompt_replacement("ICON_IK_JOY1.dds",prompt)==0);
@@ -47,7 +60,15 @@ int main(int argc,char **argv) {
     DWORD result=get(0,&state);
     printf("Automated ABI/mapping checks passed: %d\nSlot 0 status=%lu (0=connected,1167=disconnected)\n",checks,result);
     if(!result) {
-        CHECK(caps(0,0,&c)==0); CHECK(c.Type==XINPUT_DEVTYPE_GAMEPAD);
+        CHECK(caps(0,0,&c)==0);
+        if(c.Type!=XINPUT_DEVTYPE_GAMEPAD) {
+            /* Legacy Windows XInput 1.3 can report Type=0 for modern Xbox
+             * hardware. Verify exact native forwarding instead of assuming
+             * the synthetic DualSense capability values. */
+            wchar_t native_path[MAX_PATH];GetSystemDirectoryW(native_path,MAX_PATH);wcscat(native_path,L"\\xinput1_3.dll");
+            HMODULE native_dll=LoadLibraryW(native_path);Caps native_caps=native_dll?(Caps)GetProcAddress(native_dll,"XInputGetCapabilities"):NULL;
+            XINPUT_CAPABILITIES expected={0};CHECK(native_caps && native_caps(0,0,&expected)==0);CHECK(memcmp(&c,&expected,sizeof(c))==0);
+        }
         printf("Capabilities type=%u subtype=%u flags=%u\n",c.Type,c.SubType,c.Flags);
         enable(FALSE); CHECK(get(0,&state)==0);
         XINPUT_GAMEPAD zero={0}; CHECK(memcmp(&state.Gamepad,&zero,sizeof(zero))==0); enable(TRUE);

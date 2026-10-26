@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <string.h>
 #include <wchar.h>
+#include "device_order.h"
 extern void controller_gate_notice(void);
 extern void install_prompt_hook(BYTE *,DWORD,DWORD);
 typedef int (__cdecl *Classifier)(const GUID *);
@@ -13,21 +14,22 @@ typedef int (WINAPI *Enumerator)(const void *,void *);
 static Enumerator original_enumerator;
 static DWORD *device_count;
 static BYTE *instance_guids,*product_guids;
+static DWORD priority_count;
 static int WINAPI enumerate(const void *device,void *context) {
     const BYTE *bytes=(const BYTE*)device;
     DWORD product; memcpy(&product,bytes+20,4);
     DWORD n=*device_count;
-    if((product==0x0ce6054c || product==0x0df2054c) && n>0 && n<4) {
-        /* Blacklist pairs XInput slot 0 with the FIRST DirectInput device,
-         * even if that device failed its XInput classifier. Keep the Sony
-         * GUID pair first, retaining the keyboard/other devices afterward. */
-        memmove(instance_guids+16,instance_guids,n*16);
-        memmove(product_guids+16,product_guids,n*16);
-        memcpy(instance_guids,bytes+4,16);memcpy(product_guids,bytes+20,16);
-        *device_count=n+1;
-        return n+1<4;
+    if(!n) priority_count=0;
+    BOOL supported=product==0x0ce6054c || product==0x0df2054c;
+    if(!supported && original_classifier) supported=original_classifier((const GUID*)(bytes+20));
+    if(supported) {
+        insert_priority_controller(instance_guids,product_guids,device_count,&priority_count,bytes+4,bytes+20);
+    } else {
+        original_enumerator(device,context);
     }
-    return original_enumerator(device,context);
+    /* Unrelated HID devices must not stop enumeration before a real pad is
+     * discovered. Game arrays remain capped at four entries. */
+    return priority_count<4;
 }
 static void *detour(BYTE *target,void *replacement) {
     BYTE *trampoline=VirtualAlloc(NULL,14,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);
@@ -86,7 +88,7 @@ BOOL WINAPI DllMain(HINSTANCE self,DWORD reason,LPVOID reserved) {
     original_classifier=(Classifier)detour(target,(void*)&classify);
     original_enumerator=(Enumerator)detour(enum_target,(void*)&enumerate);
     detection_hook_status=original_classifier && original_enumerator ?
-        "Verified Blacklist identity and device-order hooks installed (DualSense only, process memory only)." : "ERROR: detection hook installation failed.";
+        "Verified Blacklist identity and device-order hooks installed (DualSense + native XInput, process memory only)." : "ERROR: detection hook installation failed.";
     install_prompt_hook(base,pe->OptionalHeader.SizeOfImage,pe->FileHeader.TimeDateStamp);
     return TRUE;
 }

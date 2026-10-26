@@ -111,6 +111,13 @@ static BOOL CALLBACK initialize(PINIT_ONCE o,void *p,void **ctx) {
     return TRUE;
 }
 static void init(void) { InitOnceExecuteOnce(&once,initialize,NULL,NULL); }
+BOOL controller_uses_playstation_prompts(void) {
+    init();AcquireSRWLockShared(&lock);BOOL result=connected;ReleaseSRWLockShared(&lock);
+    static LONG reported=-1;
+    if(InterlockedExchange(&reported,result)!=result)
+        log_line(result?"Controller prompt style: PlayStation (DualSense detected).":"Controller prompt style: Xbox (native XInput; no DualSense).");
+    return result;
+}
 void controller_gate_notice(void) { init(); log_line("DualSense accepted by the game's controller identity classifier."); }
 static BOOL sony(DWORD i) { return i==0 && connected; }
 DWORD WINAPI proxyGetState(DWORD i,XINPUT_STATE *s) {
