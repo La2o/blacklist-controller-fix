@@ -1,4 +1,4 @@
-# Splinter Cell Blacklist — PS5 and Xbox Controller Compatibility
+# Blacklist Controller Fix
 
 **PS5 DualSense and native Xbox controllers, with automatic controller-appropriate button icons.**
 
@@ -6,11 +6,15 @@ Version 1.2.0 passed user-confirmed Xbox USB and PS5 Bluetooth tests on the same
 
 Use a PlayStation 5 DualSense over USB or Bluetooth with Blacklist's actual gamepad controls on Windows, including analog movement and controller menus, when launching through Ubisoft Connect.
 
+A native gamepad compatibility mod for **Splinter Cell Blacklist** on Windows, launched through Ubisoft Connect.
+
 ## Easy install
 
-1. Download [**Blacklist-DualSense-DropIn.zip**](https://github.com/La2o/splinter-cell-blacklist-dualsense/releases/latest/download/Blacklist-DualSense-DropIn.zip).
+1. Download [**Blacklist-Controller-Fix.zip**](https://github.com/La2o/blacklist-controller-fix/releases/latest/download/Blacklist-Controller-Fix.zip).
 2. Close Blacklist and extract the ZIP into the game folder containing `Blacklist_Launcher.exe`.
 3. Connect your DualSense or Xbox controller and launch the game through Ubisoft Connect.
+
+The previous `splinter-cell-blacklist-dualsense` repository URL redirects here. Existing legacy-named release downloads remain available.
 
 The files should land at `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`. No installer, driver or configuration change is required. If either DLL already belongs to another mod, back it up before replacement. DualSense uses PlayStation prompts, using the game's existing PS3-style textures: Cross, Circle, Square, Triangle, L1/R1 and L2/R2. Start/Select retain their PS3 artwork. Native Xbox input keeps Xbox prompts.
 
