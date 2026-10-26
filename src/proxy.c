@@ -13,6 +13,9 @@ static DWORD battery_type=BATTERY_TYPE_UNKNOWN,battery_level=BATTERY_LEVEL_FULL;
 static HANDLE ready;
 static char log_path[MAX_PATH];
 extern const char *detection_hook_status;
+extern const char *prompt_hook_status;
+extern volatile LONG prompt_redirect_mask;
+extern volatile LONG prompt_missing_mask;
 static void log_line(const char *s) {
     FILE *f=fopen(log_path,"a");
     if(f) { fprintf(f,"[%lu pid=%lu] %s\n",GetTickCount(),GetCurrentProcessId(),s); fclose(f); }
@@ -36,7 +39,13 @@ static DWORD WINAPI poll_controller(void *unused) {
     ULONGLONG next_scan=0;
     XINPUT_VIBRATION last={0};
     BOOL previous_enabled=TRUE;
+    LONG reported_prompts=0;
     for(;;) {
+        LONG prompts=prompt_redirect_mask;
+        if(prompts!=reported_prompts) {
+            char message[160];snprintf(message,sizeof(message),"PlayStation prompt textures used: button mask %04lx (archive fallback mask %04lx).",(unsigned long)prompts,(unsigned long)prompt_missing_mask);
+            log_line(message);reported_prompts=prompts;
+        }
         SDL_UpdateGamepads();
         if(pad && !SDL_GamepadConnected(pad)) {
             AcquireSRWLockExclusive(&lock); connected=FALSE; ZeroMemory(&rumble,sizeof(rumble)); ZeroMemory(&cached.Gamepad,sizeof(cached.Gamepad)); ReleaseSRWLockExclusive(&lock);
@@ -94,6 +103,7 @@ static BOOL CALLBACK initialize(PINIT_ONCE o,void *p,void **ctx) {
     if(n && n+15<MAX_PATH) { wcscat(path,L"\\xinput1_3.dll"); original=LoadLibraryW(path); }
     log_line(original ? "Proxy initialized; system XInput loaded by absolute path." : "Proxy initialized; system XInput unavailable.");
     log_line(detection_hook_status);
+    log_line(prompt_hook_status);
     ready=CreateEventW(NULL,TRUE,FALSE,NULL);
     HANDLE thread=CreateThread(NULL,0,poll_controller,NULL,0,NULL);
     if(thread) { CloseHandle(thread); WaitForSingleObject(ready,3000); }

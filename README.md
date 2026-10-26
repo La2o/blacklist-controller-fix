@@ -1,6 +1,6 @@
 # Splinter Cell Blacklist — PS5 Controller Bluetooth Supported
 
-**PS5 Controller Bluetooth Supported**
+**PS5 Controller Bluetooth Supported — now with PlayStation button icons.**
 
 Use a PlayStation 5 DualSense over Bluetooth with Blacklist's actual gamepad controls on Windows, including analog movement and controller menus, when launching through Ubisoft Connect.
 
@@ -10,7 +10,7 @@ Use a PlayStation 5 DualSense over Bluetooth with Blacklist's actual gamepad con
 2. Close Blacklist and extract the ZIP into the game folder containing `Blacklist_Launcher.exe`.
 3. Connect your DualSense and launch the game through Ubisoft Connect.
 
-The files should land at `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`. No installer, driver or configuration change is required. If either DLL already belongs to another mod, back it up before replacement. Xbox button prompts are expected.
+The files should land at `src/SYSTEM/xinput1_3.dll` and `src/SYSTEM/SDL3.dll`. No installer, driver or configuration change is required. If either DLL already belongs to another mod, back it up before replacement. PlayStation prompts are enabled in v1.1.0, using the game's existing PS3-style textures: Cross, Circle, Square, Triangle, L1/R1 and L2/R2. Start/Select retain their PS3 artwork.
 
 ## Remove
 
@@ -26,13 +26,19 @@ These two hooks operate only in process memory. They check executable name, time
 
 With a DualSense connected, slot 0 is reserved for it and supersedes an ordinary XInput controller at slot 0. Slots 1–3 pass through. Without a DualSense, the XInput APIs pass through normally. Only Sony VID 054c/PID 0ce6 and Edge PID 0df2 are selected. Edge support has not been tested.
 
+## PlayStation button prompts
+
+Version 1.1.0 intercepts the verified archive lookup function and redirects only Flash UI `ICON_IK_JOY1.dds` through `ICON_IK_JOY16.dds` requests to the existing `SC6IconsPS3` assets. It covers matching assets used by menus and HUD. Already-PS3 paths, keyboard artwork, unrelated textures and invalid button names are left alone. If an archive has no replacement, its original lookup runs. Game archives stay unchanged, and no Ubisoft textures are distributed.
+
+The hook validates the lookup function signature for the same supported executable revisions before copying ten whole prologue bytes to a trampoline. Diagnostic logs identify the installed hook and the bitmask of replacement buttons actually loaded. Unknown builds refuse the hook.
+
 ## Tested status
 
-- **User-confirmed in game:** native controller menus and analog movement, Bluetooth DualSense, DX11, Ubisoft Connect launch.
-- **Automated checks:** x86 imports/exports and ABI, button and analog conversion, physical stick endpoints and Cross presses, loading inside the game, identity and ordering hooks, correct slot selection, and unchanged original file hashes.
+- **User-confirmed in game:** native controller menus and analog movement, Bluetooth DualSense, DX11, Ubisoft Connect launch. For v1.1.0, the user also confirmed PlayStation icons appear and inputs still work after checking menus/HUD.
+- **Automated checks:** x86 imports/exports and ABI, button and analog conversion, physical stick endpoints and Cross presses, loading inside the game, identity and ordering hooks, correct slot selection, unchanged original file hashes, prompt-path filtering/fallback eligibility, and all 16 replacement button textures loaded inside the game.
 - **Not tested:** USB, DX9 gameplay, DualSense Edge, physical full trigger travel, rumble, disconnect/reconnect, and multiplayer.
 
-Rumble is implemented through SDL but has not been physically verified. There are no adaptive-trigger effects, gyro/touchpad mappings, PlayStation glyph changes or headset audio bridge. The optional XInputGetKeystroke API has no Sony event queue; Blacklist does not import it.
+Rumble is implemented through SDL but has not been physically verified. There are no adaptive-trigger effects, gyro/touchpad mappings, headset audio bridge. PlayStation glyph replacement is included from v1.1.0. The optional XInputGetKeystroke API has no Sony event queue; Blacklist does not import it.
 
 SDL enhanced reports are enabled. If a separate DirectInput-only app stops recognizing the controller afterward, power the controller off and on to reset its Bluetooth report mode. See [SDL's documentation](https://wiki.libsdl.org/SDL3/SDL_HINT_JOYSTICK_ENHANCED_REPORTS).
 

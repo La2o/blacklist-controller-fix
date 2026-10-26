@@ -1,10 +1,22 @@
 #define WIN32_LEAN_AND_MEAN
 #include "mapping.h"
+#include "prompt_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define CHECK(x) do { if(!(x)) { printf("FAIL line %d: %s\n",__LINE__,#x); return 1; } ++checks; } while(0)
 int main(int argc,char **argv) {
     int checks=0;
+    char prompt[256];
+    CHECK(prompt_replacement(NULL,prompt)==0);
+    CHECK(prompt_replacement("ICON_IK_JOY1.dds",prompt)==0);
+    CHECK(prompt_replacement("..\\..\\data\\flash\\textures\\SC6IconsPC\\ICON_IK_JOY1.dds",prompt)==1);
+    CHECK(!strcmp(prompt,"..\\..\\data\\flash\\textures\\SC6IconsPS3\\ICON_IK_JOY1.dds"));
+    CHECK(prompt_replacement("flash/pc_textures/SMIPause/icon_ik_joy16.dds",prompt)==16);
+    CHECK(prompt_replacement("flash\\textures\\SC6IconsPS3\\ICON_IK_JOY1.dds",prompt)==0);
+    CHECK(prompt_replacement("flash\\textures\\SC6IconsPC\\ICON_IK_JOY0.dds",prompt)==0);
+    CHECK(prompt_replacement("flash\\textures\\SC6IconsPC\\ICON_IK_JOY17.dds",prompt)==0);
+    CHECK(prompt_replacement("flash\\textures\\SC6IconsPC\\ICON_IK_JOY1.dds.bak",prompt)==0);
+    CHECK(prompt_replacement("flash\\textures\\SC6IconsPC\\ICON_IK_KEY_A.dds",prompt)==0);
     bool buttons[SDL_GAMEPAD_BUTTON_COUNT]={0}; Sint16 axes[6]={0};
     CHECK(sizeof(XINPUT_STATE)==16); CHECK(sizeof(XINPUT_GAMEPAD)==12);
     CHECK(flip_y(-32768)==32767); CHECK(flip_y(32767)==-32768);

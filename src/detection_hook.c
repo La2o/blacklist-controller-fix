@@ -6,6 +6,7 @@
 #include <string.h>
 #include <wchar.h>
 extern void controller_gate_notice(void);
+extern void install_prompt_hook(BYTE *,DWORD,DWORD);
 typedef int (__cdecl *Classifier)(const GUID *);
 static Classifier original_classifier;
 typedef int (WINAPI *Enumerator)(const void *,void *);
@@ -86,5 +87,6 @@ BOOL WINAPI DllMain(HINSTANCE self,DWORD reason,LPVOID reserved) {
     original_enumerator=(Enumerator)detour(enum_target,(void*)&enumerate);
     detection_hook_status=original_classifier && original_enumerator ?
         "Verified Blacklist identity and device-order hooks installed (DualSense only, process memory only)." : "ERROR: detection hook installation failed.";
+    install_prompt_hook(base,pe->OptionalHeader.SizeOfImage,pe->FileHeader.TimeDateStamp);
     return TRUE;
 }
